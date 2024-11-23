@@ -20,10 +20,12 @@ import { apiClient } from "@/lib/api-client"
 import { HOST, SEARCH_CONTACT_ROUTES } from "@/utils/constants"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import { useAppStore } from "@/store"
 
 
 
 const NewDM = () => {
+    const {setSelectedChatType, setSelectedChatData } = useAppStore();
     const [openNewContactModel, setOpenNewContactModel] = useState(false);
     const [searchedContacts, setSearchedContacts] = useState([])
 
@@ -49,6 +51,13 @@ const NewDM = () => {
             console.log(error);
             
         }
+    };
+
+    const selectNewContact = (contact)=>{
+        setOpenNewContactModel(false)
+        setSelectedChatType("contact")
+        setSelectedChatData(contact)
+        setSearchedContacts([])
     }
     return (
         <>
@@ -75,10 +84,13 @@ const NewDM = () => {
                         <Input placeholder="Search Contacts" className="rounded-lg p-6 bg-[#2c2e3b] border-none"
                         onChange={(e)=>searchContacts(e.target.value)}/>
                     </div>
-                    <ScrollArea className="h-[250px]">
+                    {searchedContacts.length > 0 &&(
+                        <ScrollArea className="h-[250px]">
                         <div className="flex flex-col gap-5">
                             {searchedContacts.map((contact)=>(
-                                <div key={contact._id} className="flex gap-3 items-center cursor-pointer">
+                                <div key={contact._id} className="flex gap-3 items-center cursor-pointer"
+                                 onClick={()=>selectNewContact(contact)}
+                                 >
                                     <div className="w-12 h-12 relative ">
                     <Avatar className="h-12 w-12 rounded-full overflow-hidden">
                         {
@@ -92,16 +104,16 @@ const NewDM = () => {
                 </div>
                 <div className="flex flex-col">
                 <span>{
-                        contact.firstName && contact.lastName ? `${contact.firstName} ${contact.lastName}` : contact.email
+                        contact.firstName && contact.lastName ? `${contact.firstName} ${contact.lastName}` : ""
                     }</span>
-                    <span className="text-sm">{contact.email}</span>
                 </div>
                                 </div>
                             ))}
                         </div>
-                    </ScrollArea>
+                    </ScrollArea>)}
+                    
                     {
-                      searchedContacts.length<=0 &&  <div className="flex-1 md:bg-[#1c1d25] md:flex flex-col mt-5 justify-center items-center  duration-1000 transition-all">
+                      searchedContacts.length<=0 &&  <div className="flex-1 md:flex flex-col mt-5 md:mt-0 justify-center items-center  duration-1000 transition-all">
                       <Lottie isClickToPauseDisabled={true}
                        height={100}
                        width={100}
